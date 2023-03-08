@@ -37,15 +37,39 @@ export class UserService {
     return dtos;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number): Promise<SingleUserDto> {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return <SingleUserDto>{
+      id: user.id,
+      email: user.email,
+    };
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<string> {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    user.email = updateUserDto.email;
+
+    await this.userRepository.save(user);
+
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
+  async remove(id: number): Promise<string> {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    this.userRepository.delete(user);
+
     return `This action removes a #${id} user`;
   }
 }
